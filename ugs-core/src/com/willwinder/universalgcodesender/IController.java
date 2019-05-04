@@ -33,6 +33,7 @@ import com.willwinder.universalgcodesender.services.MessageService;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import com.willwinder.universalgcodesender.utils.GcodeStreamReader;
 
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -107,6 +108,8 @@ public interface IController {
      *  @param position the position to move to
      * @param feedRate the feed rate using the units in the position.*/
     void jogMachineTo(PartialPosition position, double feedRate) throws Exception;
+
+    void jogMachineAlong(List<PartialPosition> positions, double feedRate) throws Exception;
 
     /**
      * Probe control

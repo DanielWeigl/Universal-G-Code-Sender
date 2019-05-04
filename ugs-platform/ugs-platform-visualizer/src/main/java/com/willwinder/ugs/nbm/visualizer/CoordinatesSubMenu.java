@@ -38,13 +38,17 @@ import java.text.DecimalFormat;
  */
 public class CoordinatesSubMenu extends JMenu {
 
+
     public CoordinatesSubMenu(final BackendAPI backend, final Position position) {
         final DecimalFormat decimalFormatter = new DecimalFormat("#.#####", Localization.dfs);
 
         String strX = decimalFormatter.format(position.getX());
         String strY = decimalFormatter.format(position.getY());
         setText(String.format(Localization.getString("platform.visualizer.popup.coordinatesMenu"), strX, strY));
+        addItems(this, backend, position);
+    }
 
+    public static void addItems(JMenu toMenu,  BackendAPI backend, Position position) {
         // Jog
         JMenuItem jogToHere = new JMenuItem(
                 new JogToHereAction(new JogService(backend), position)
@@ -66,9 +70,9 @@ public class CoordinatesSubMenu extends JMenu {
             }
         });
 
-        add(jogToHere);
-        add(setWorkOffsetToHere);
-        add(copyCoords);
+        toMenu.add(jogToHere);
+        toMenu.add(setWorkOffsetToHere);
+        toMenu.add(copyCoords);
 
         // set texts
         jogToHere.setText(Localization.getString("platform.visualizer.popup.submenu.jogToHere"));

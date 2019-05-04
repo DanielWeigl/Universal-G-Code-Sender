@@ -24,25 +24,21 @@ import com.willwinder.ugs.nbp.lib.services.LocalizingService;
 import com.willwinder.universalgcodesender.listeners.ControllerListener;
 import com.willwinder.universalgcodesender.listeners.ControllerStatus;
 import com.willwinder.universalgcodesender.listeners.UGSEventListener;
-import com.willwinder.universalgcodesender.model.Alarm;
-import com.willwinder.universalgcodesender.model.BackendAPI;
-import com.willwinder.universalgcodesender.model.Position;
-import com.willwinder.universalgcodesender.model.UGSEvent;
-import com.willwinder.universalgcodesender.model.UnitUtils;
+import com.willwinder.universalgcodesender.model.*;
 import com.willwinder.universalgcodesender.services.JogService;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
 import com.willwinder.universalgcodesender.utils.SwingHelpers;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
+import org.openide.util.Lookup;
 import org.openide.windows.TopComponent;
 
+import javax.swing.*;
 import java.awt.*;
-import org.openide.util.Lookup;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
-import javax.swing.JPopupMenu;
 
 /**
  * The jog control panel in NetBeans
@@ -59,14 +55,14 @@ import javax.swing.JPopupMenu;
         category = JogTopComponent.CATEGORY,
         id = JogTopComponent.ACTION_ID)
 @ActionReference(
-        path = JogTopComponent.WINOW_PATH)
+        path = JogTopComponent.WINDOW_PATH)
 @TopComponent.OpenActionRegistration(
         displayName = "Jog Controller",
         preferredID = "JogTopComponent"
 )
 public final class JogTopComponent extends TopComponent implements UGSEventListener, ControllerListener, JogPanelListener {
 
-    public static final String WINOW_PATH = LocalizingService.MENU_WINDOW_PLUGIN;
+    public static final String WINDOW_PATH = LocalizingService.MENU_WINDOW_PLUGIN;
     public static final String CATEGORY = LocalizingService.CATEGORY_WINDOW;
     public static final String ACTION_ID = "com.willwinder.ugs.nbp.jog.JogTopComponent";
 

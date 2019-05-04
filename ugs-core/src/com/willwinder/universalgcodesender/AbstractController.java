@@ -38,6 +38,7 @@ import org.apache.commons.lang3.time.StopWatch;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -250,6 +251,19 @@ public abstract class AbstractController implements SerialCommunicatorListener, 
         GcodeCommand command = createCommand(commandString);
         command.setTemporaryParserModalChange(true);
         sendCommandImmediately(command);
+        restoreParserModalState();
+    }
+
+
+    @Override
+    public void jogMachineAlong(List<PartialPosition> positions, double feedRate) throws Exception {
+
+        for (PartialPosition position : positions) {
+            String commandString = GcodeUtils.generateMoveToCommand(position, feedRate);
+            GcodeCommand command = createCommand(commandString);
+            command.setTemporaryParserModalChange(true);
+            sendCommandImmediately(command);
+        }
         restoreParserModalState();
     }
 

@@ -20,14 +20,15 @@ package com.willwinder.universalgcodesender.services;
 
 import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.PartialPosition;
+import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UnitUtils.Units;
 import com.willwinder.universalgcodesender.utils.Settings;
 
+import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- *
  * @author wwinder
  */
 public class JogService {
@@ -71,7 +72,7 @@ public class JogService {
             return 1;
         } else if (size <= 1 && size > 0.1) {
             return 0.1;
-        } else if (size <= 0.1 ) {
+        } else if (size <= 0.1) {
             return 0.01;
         }
         return size;
@@ -82,11 +83,11 @@ public class JogService {
             return 0.01;
         } else if (size >= 0.01 && size < 0.1) {
             return 0.1;
-        }  else if (size >= 0.1 && size < 1) {
+        } else if (size >= 0.1 && size < 1) {
             return 1;
-        }  else if (size >= 1 && size < 10) {
+        } else if (size >= 1 && size < 10) {
             return 10;
-        }  else if (size >= 10) {
+        } else if (size >= 10) {
             return 100;
         }
         return size;
@@ -140,6 +141,7 @@ public class JogService {
         setFeedRate(decreaseSize(getFeedRate()));
     }
 
+
     public void setStepSizeXY(double size) {
         getSettings().setManualModeStepSize(size);
     }
@@ -153,7 +155,7 @@ public class JogService {
     }
 
     public void setFeedRate(double rate) {
-        if( rate < 1 ) {
+        if (rate < 1) {
             getSettings().setJogFeedRate(1);
         } else {
             getSettings().setJogFeedRate(rate);
@@ -169,7 +171,7 @@ public class JogService {
             getSettings().setPreferredUnits(units);
         }
     }
-    
+
     public Units getUnits() {
         return getSettings().getPreferredUnits();
     }
@@ -187,9 +189,10 @@ public class JogService {
             //DialogDisplayer.getDefault().notify(nd);
         }
     }
-    
+
     /**
      * Adjusts the Z axis location.
+     *
      * @param z direction.
      */
     public void adjustManualLocationZ(int z) {
@@ -213,6 +216,7 @@ public class JogService {
 
     /**
      * Adjusts the XY axis location.
+     *
      * @param x direction.
      * @param y direction.
      */
@@ -257,4 +261,23 @@ public class JogService {
             logger.log(Level.WARNING, "Couldn't jog to position " + position, e);
         }
     }
+
+    public void jogOutline(Position btmLeft, Position topRight) {
+        ArrayList<PartialPosition> outline = new ArrayList<>(5);
+        Units unit = btmLeft.getUnits();
+
+        outline.add(new PartialPosition(btmLeft.getX(), btmLeft.getY(), unit));
+        outline.add(new PartialPosition(topRight.getX(), btmLeft.getY(), unit));
+        outline.add(new PartialPosition(topRight.getX(), topRight.getY(), unit));
+        outline.add(new PartialPosition(btmLeft.getX(), topRight.getY(), unit));
+        outline.add(new PartialPosition(btmLeft.getX(), btmLeft.getY(), unit));
+
+        try {
+            backend.getController().jogMachineAlong(outline, getFeedRate());
+        } catch (Exception e) {
+            logger.log(Level.WARNING, "Couldn't jog around outline" , e);
+            return;
+        }
+    }
+
 }

@@ -26,6 +26,7 @@ import com.willwinder.ugs.nbm.visualizer.options.VisualizerOptions;
 import com.willwinder.ugs.nbm.visualizer.shared.Renderable;
 import com.willwinder.universalgcodesender.gcode.util.GcodeParserException;
 import com.willwinder.universalgcodesender.i18n.Localization;
+import com.willwinder.universalgcodesender.model.Cuboid;
 import com.willwinder.universalgcodesender.utils.GUIHelpers;
 import com.willwinder.universalgcodesender.utils.GcodeStreamReader;
 import com.willwinder.universalgcodesender.visualizer.GcodeViewParse;
@@ -74,6 +75,7 @@ public class GcodeModel extends Renderable {
     private Point3d objectMin;
     private Point3d objectMax;
     private Point3d objectSize;
+    private Cuboid workingCuboid;
 
     // Preferences
     private Color linearColor;
@@ -213,6 +215,10 @@ public class GcodeModel extends Renderable {
         return this.objectMax;
     }
 
+    public Cuboid getWorkingCuboid() {
+        return workingCuboid;
+    }
+
     /**
      * Parse the gcodeFile and store the resulting geometry and data about it.
      */
@@ -235,6 +241,7 @@ public class GcodeModel extends Renderable {
 
             this.objectMin = gcvp.getMinimumExtremes();
             this.objectMax = gcvp.getMaximumExtremes();
+            this.workingCuboid = gcvp.getWorkingCuboid();
 
             if (gcodeLineList.isEmpty()) {
                 return false;

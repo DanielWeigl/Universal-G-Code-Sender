@@ -32,6 +32,7 @@ import com.willwinder.universalgcodesender.gcode.processors.CommentProcessor;
 import com.willwinder.universalgcodesender.gcode.processors.WhitespaceProcessor;
 import com.willwinder.universalgcodesender.gcode.util.GcodeParserException;
 import com.willwinder.universalgcodesender.gcode.util.PlaneFormatter;
+import com.willwinder.universalgcodesender.model.Cuboid;
 import com.willwinder.universalgcodesender.model.Position;
 import com.willwinder.universalgcodesender.model.UnitUtils;
 import com.willwinder.universalgcodesender.types.GcodeCommand;
@@ -49,9 +50,11 @@ public class GcodeViewParse {
     boolean absoluteMode = true;
     static boolean absoluteIJK = false;
 
+    // Workspace
+    private final Cuboid movingCuboid;  // total moving (fast and cutting)
+    private final Cuboid workingCuboid;  // only cutting
+
     // Parsed object
-    private final Position min;
-    private final Position max;
     private final List<LineSegment> lines;
     
     // Debug
@@ -59,53 +62,37 @@ public class GcodeViewParse {
     
     public GcodeViewParse()
     {
-        min = new Position();
-        max = new Position();
+        movingCuboid = new Cuboid();
+        workingCuboid = new Cuboid();
         lines = new ArrayList<>();
     }
 
     public Position getMinimumExtremes()
     {
-        return min;
+        return movingCuboid.getMinPos();
     }
     
     public Position getMaximumExtremes()
     {
-        return max;
+        return movingCuboid.getMaxPos();
+    }
+
+    public Cuboid getWorkingCuboid(){
+        return workingCuboid;
     }
     
     /**
      * Test a point and update min/max coordinates if appropriate.
      */
-    private void testExtremes(final Position p3d)
+    private void testExtremes(final Position p3d, boolean fastTraverse)
     {
-        testExtremes(p3d.x, p3d.y, p3d.z);
+        movingCuboid.extendBy(p3d);
+        if (!fastTraverse) {
+            workingCuboid.extendBy(p3d);
+        }
     }
     
-    /**
-     * Test a point and update min/max coordinates if appropriate.
-     */
-    private void testExtremes(double x, double y, double z)
-    {
-        if(x < min.x) {
-            min.x = x;
-        }
-        if(x > max.x) {
-            max.x = x;
-        }
-        if(y < min.y) {
-            min.y = y;
-        }
-        if(y > max.y) {
-            max.y = y;
-        }
-        if(z < min.z) {
-            min.z = z;
-        }
-        if(z > max.z) {
-            max.z = z;
-        }
-    }
+
 
     /**
      * Create a gcode parser with required configuration.
@@ -220,7 +207,7 @@ public class GcodeViewParse {
                         ls.setIsArc(endSegment.isArc());
                         ls.setIsFastTraverse(endSegment.isFastTraverse());
                         ls.setIsZMovement(endSegment.isZMovement());
-                        this.testExtremes(nextPoint);
+                        this.testExtremes(nextPoint, endSegment.isFastTraverse());
                         ret.add(ls);
                         startPoint = nextPoint;
                     }
@@ -231,7 +218,7 @@ public class GcodeViewParse {
                 ls.setIsArc(endSegment.isArc());
                 ls.setIsFastTraverse(endSegment.isFastTraverse());
                 ls.setIsZMovement(endSegment.isZMovement());
-                this.testExtremes(end);
+                this.testExtremes(end, endSegment.isFastTraverse());
                 ret.add(ls);
             }
         }

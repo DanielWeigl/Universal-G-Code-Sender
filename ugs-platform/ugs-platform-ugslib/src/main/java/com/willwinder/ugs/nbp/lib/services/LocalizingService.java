@@ -25,9 +25,10 @@ package com.willwinder.ugs.nbp.lib.services;
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.universalgcodesender.i18n.Localization;
 import com.willwinder.universalgcodesender.model.BackendAPI;
-import java.io.IOException;
 import org.openide.util.Lookup;
 import org.openide.util.lookup.ServiceProvider;
+
+import java.io.IOException;
 
 /**
  *
@@ -82,6 +83,9 @@ public class LocalizingService {
     public final static String JogControlWindowPath = MENU_WINDOW;
     public final static String JogControlActionId = "com.willwinder.ugs.nbp.core.control.JogControlTopComponent";
     public final static String JogControlCategory = CATEGORY_WINDOW;
+
+    public final static String JogOutlineTitle = Localization.getString("platform.window.jogoutline", lang);
+    public final static String JogOutlineTooltip = Localization.getString("platform.window.jogoutline.tooltip", lang);
 
     public final static String FileBrowserTitle = Localization.getString("platform.window.filebrowser", lang);
     public final static String FileBrowserTooltip = Localization.getString("platform.window.filebrowser.tooltip", lang);
