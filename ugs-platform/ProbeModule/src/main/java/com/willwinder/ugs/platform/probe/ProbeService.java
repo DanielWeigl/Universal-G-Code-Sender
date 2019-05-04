@@ -56,6 +56,7 @@ public class ProbeService implements UGSEventListener {
     private enum ProbeOperation {
         NONE(0),
         Z(2),
+        Z_TLO(2),
         OUTSIDE_XY(4),
         OUTSIDE_XYZ(6),
         //INSIDE_XY    (4),
@@ -154,6 +155,13 @@ public class ProbeService implements UGSEventListener {
         performZProbeInternal(0);
     }
 
+    void performZTlo(ProbeParameters params) throws IllegalStateException {
+        validateState();
+        currentOperation = ProbeOperation.Z_TLO;
+        this.params = params;
+        performZTloInternal(0);
+    }
+
     private void performZProbeInternal(int stepNumber) throws IllegalStateException {
         String unit = GcodeUtils.unitCommand(params.units);
 
@@ -191,6 +199,53 @@ public class ProbeService implements UGSEventListener {
                             null,
                             null,
                             startPositionInUnits.z - probe.z + zProbedOffset);
+                    break;
+                }
+                default:
+                    throw new UnsupportedOperationException("Invalid step number: " + stepNumber);
+            }
+        } catch (Exception e) {
+            resetProbe();
+            logger.log(Level.SEVERE, "Exception during z probe operation.", e);
+        }
+    }
+
+    private void performZTloInternal(int stepNumber) throws IllegalStateException {
+        String unit = GcodeUtils.unitCommand(params.units);
+
+        continuation = () -> performZTloInternal(stepNumber + 1);
+        try {
+            switch (stepNumber) {
+                case 0: {
+                    // Reset (_, _, 0) to make it easier to retract.
+                    //updateWCS(params.wcsToUpdate, null, null, 0.0);
+
+                    probe('Z', params.feedRate, params.zSpacing, params.units);
+                    break;
+                }
+                case 1: {
+                    gcode("G91 " + unit + " G0 Z" + retractDistance(params.zSpacing, params.retractAmount));
+                    probe('Z', params.feedRateSlow, params.zSpacing, params.units);
+                    break;
+                }
+                case 2: {
+                    // retract again
+                    gcode("G91 " + unit + " G0 Z" + retractDistance(params.zSpacing, params.retractAmount));
+                    break;
+                }
+                case 3: {
+                    // Once idle, perform calculations.
+                    Preconditions.checkState(probePositions.size() == 2, "Unexpected number of probe positions.");
+                    Position probe = probePositions.get(1).getPositionIn(params.units);
+
+                    double zDir = Math.signum(params.zSpacing) * -1;
+                    double zProbedOffset = zDir * params.zOffset;
+
+                    Position startPositionInUnits = params.startPosition.getPositionIn(params.units);
+                    updateWCS(params.wcsToUpdate,
+                            null,
+                            null,
+                            startPositionInUnits.z - probe.z);
                     break;
                 }
                 default:

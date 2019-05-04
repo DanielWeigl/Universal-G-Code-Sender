@@ -19,20 +19,11 @@
 
 package com.willwinder.ugs.platform.probe;
 
-import static com.willwinder.universalgcodesender.model.WorkCoordinateSystem.G54;
-import static com.willwinder.universalgcodesender.model.WorkCoordinateSystem.G55;
-import static com.willwinder.universalgcodesender.model.WorkCoordinateSystem.G56;
-import static com.willwinder.universalgcodesender.model.WorkCoordinateSystem.G57;
-import static com.willwinder.universalgcodesender.model.WorkCoordinateSystem.G58;
-import static com.willwinder.universalgcodesender.model.WorkCoordinateSystem.G59;
-import static com.willwinder.universalgcodesender.utils.SwingHelpers.getDouble;
-
 import com.google.gson.Gson;
 import com.willwinder.ugs.nbm.visualizer.shared.Renderable;
 import com.willwinder.ugs.nbm.visualizer.shared.RenderableUtils;
 import com.willwinder.ugs.nbp.lib.lookup.CentralLookup;
 import com.willwinder.ugs.nbp.lib.services.LocalizingService;
-import static com.willwinder.ugs.nbp.lib.services.LocalizingService.lang;
 import com.willwinder.ugs.nbp.lib.services.TopComponentLocalizer;
 import com.willwinder.ugs.platform.probe.ProbeService.ProbeParameters;
 import com.willwinder.ugs.platform.probe.renderable.CornerProbePathPreview;
@@ -43,20 +34,21 @@ import com.willwinder.universalgcodesender.model.BackendAPI;
 import com.willwinder.universalgcodesender.model.UGSEvent;
 import com.willwinder.universalgcodesender.model.UnitUtils.Units;
 import com.willwinder.universalgcodesender.model.WorkCoordinateSystem;
-
 import net.miginfocom.swing.MigLayout;
-
+import org.apache.commons.lang3.StringUtils;
 import org.netbeans.api.settings.ConvertAsProperties;
 import org.openide.awt.ActionID;
 import org.openide.awt.ActionReference;
+import org.openide.modules.OnStart;
 import org.openide.windows.TopComponent;
-
-import java.awt.*;
+import org.openide.windows.WindowManager;
 
 import javax.swing.*;
-import org.apache.commons.lang3.StringUtils;
-import org.openide.modules.OnStart;
-import org.openide.windows.WindowManager;
+import java.awt.*;
+
+import static com.willwinder.ugs.nbp.lib.services.LocalizingService.lang;
+import static com.willwinder.universalgcodesender.model.WorkCoordinateSystem.*;
+import static com.willwinder.universalgcodesender.utils.SwingHelpers.getDouble;
 
 /**
  * Top component which displays something.
@@ -123,7 +115,8 @@ public final class ProbeTopComponent extends TopComponent implements UGSEventLis
     private static final String Z_TAB = "Z";
     private final SpinnerNumberModel zProbeDistance;
     private final SpinnerNumberModel zProbeOffset;
-    private final JButton  zProbeButton = new JButton(Localization.getString("probe.button"));
+    private final JButton zProbeButton = new JButton(Localization.getString("probe.button"));
+    private final JButton zTloProbeButton = new JButton(Localization.getString("probe.button.zTLO"));
 
     // inside tab
     private SpinnerNumberModel insideXDistanceModel;
@@ -272,6 +265,16 @@ public final class ProbeTopComponent extends TopComponent implements UGSEventLis
                 this.zRenderable.setStart(backend.getWorkPosition());
                 ps2.performZProbe(pc);
             });
+        zTloProbeButton.addActionListener(e -> {
+                ProbeParameters pc = new ProbeParameters(
+                        getDouble(settingsProbeDiameter), backend.getMachinePosition(),
+                        0., 0., getDouble(zProbeDistance),
+                        0., 0., getDouble(zProbeOffset),
+                        getDouble(settingsFastFindRate), getDouble(settingsSlowMeasureRate),
+                        getDouble(settingsRetractAmount), getUnits(), get(settingsWorkCoordinate));
+                this.zRenderable.setStart(backend.getWorkPosition());
+                ps2.performZTlo(pc);
+            });
 
         initComponents();
         updateControls();
@@ -351,6 +354,7 @@ public final class ProbeTopComponent extends TopComponent implements UGSEventLis
         this.measureInside.setEnabled(enabled);
         this.measureOutside.setEnabled(enabled);
         this.zProbeButton.setEnabled(enabled);
+        this.zTloProbeButton.setEnabled(enabled);
     }
 
     @Override
@@ -417,11 +421,12 @@ public final class ProbeTopComponent extends TopComponent implements UGSEventLis
         outside.add(measureOutside, "spanx 2, spany 2, growx, growy");
 
         // Z PROBE TAB
-        JPanel z = new JPanel(new MigLayout("wrap 4"));
+        JPanel z = new JPanel(new MigLayout("wrap 6"));
         z.add(new JLabel(Z_OFFSET));
         z.add(new JSpinner(this.zProbeOffset), "growx");
 
         z.add(this.zProbeButton, "spanx 2, spany 2, growx, growy");
+        z.add(this.zTloProbeButton, "spanx 2, spany 2, growx, growy");
 
         z.add(new JLabel(Z_DISTANCE));
         z.add(new JSpinner(this.zProbeDistance), "growx");
