@@ -22,12 +22,6 @@ public class PositionXY implements AxisPosition {
         return new PositionXY(other.getX(), other.getY(), other.getUnit());
     }
 
-    public static PositionXY from(PartialPosition other) {
-        if (!other.has(Axis.X) || !other.has(Axis.Y)) {
-            throw new IllegalArgumentException("...");
-        }
-        return new PositionXY(other.getX(), other.getY(), other.getUnit());
-    }
 
     public double getX() {
         return x;

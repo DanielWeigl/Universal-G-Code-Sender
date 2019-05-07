@@ -9,12 +9,7 @@ import java.util.Map;
 public class PositionXYZ extends PositionXY implements AxisPosition {
     double z;
 
-    public static PositionXYZ from(PartialPosition other) {
-        if (!other.has(Axis.X) || !other.has(Axis.Y) || !other.has(Axis.Z)) {
-            throw new IllegalArgumentException("...");
-        }
-        return new PositionXYZ(other.getX(), other.getY(), other.getZ(), other.getUnit());
-    }
+
 
     public PositionXYZ(double x, double y, double z, UnitUtils.Units units) {
         super(x, y, units);

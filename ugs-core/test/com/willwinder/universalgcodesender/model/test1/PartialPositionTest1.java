@@ -25,12 +25,25 @@ public class PartialPositionTest1 {
                 .build();
 
         System.out.println(formatGCode(pos5));
-        System.out.println(formatGCode(PositionXY.from(pos5)));
-        System.out.println(formatGCode(PositionXYZ.from(pos5)));
+        System.out.println(formatGCode(pos5.getXY()));
+        System.out.println(formatGCode(pos5.getXYZ()));
+
+        System.out.println(formatGCode(pos5));
+        System.out.println(moveTo2D(pos5.getXYZ()));
+        //System.out.println(moveTo3D(PositionXY.from(pos5)));  // type error catched on compiletime
+        System.out.println(moveTo3D(pos5.getXYZ()));
 
     }
 
     public String formatGCode(AxisPosition pos) {
         return "G0" + pos.getFormattedGCode();
+    }
+
+    public String moveTo2D(PositionXY pos) {
+        return "G0" + pos.getXY().getFormattedGCode();
+    }
+
+    public String moveTo3D(PositionXYZ pos) {
+        return "G0" + pos.getXYZ().getFormattedGCode();
     }
 }

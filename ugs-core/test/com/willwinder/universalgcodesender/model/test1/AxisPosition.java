@@ -29,4 +29,19 @@ public interface AxisPosition {
         return sb.toString();
     }
 
+    default PositionXYZ getXYZ() {
+        if (!this.has(Axis.X) || !this.has(Axis.Y) || !this.has(Axis.Z)) {
+            throw new IllegalArgumentException("...");
+        }
+        return new PositionXYZ(this.get(Axis.X), this.get(Axis.Y), this.get(Axis.Z), this.getUnit());
+    }
+
+    default PositionXY getXY() {
+        if (!this.has(Axis.X) || !this.has(Axis.Y)) {
+            throw new IllegalArgumentException("...");
+        }
+        return new PositionXY(this.get(Axis.X), this.get(Axis.Y), this.getUnit());
+    }
+
+
 }
